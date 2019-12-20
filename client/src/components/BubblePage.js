@@ -4,6 +4,7 @@ import {axiosWithAuth} from '../utils/axiosWithAuth';
 import Bubbles from "./Bubbles";
 import ColorList from "./ColorList";
 
+
 const BubblePage = props => {
   console.log('new props from bubblepage', props)
   const [colorList, setColorList] = useState([]);
