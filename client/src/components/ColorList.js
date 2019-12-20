@@ -25,8 +25,9 @@ const ColorList = ({ colors, updateColors }) => {
       .put(`/colors/${colorToEdit.id}`, colorToEdit)
       .then(res => {
         console.log('res from saveEdit', res)
+        setColorToEdit(res.data)
         // setColorToEdit({...initialColor, color: '', hex: ''})
-        updateColors(res.data)
+        // updateColors(res.data)
         // setEditing(false)
       })
       .catch(err => {
@@ -40,7 +41,8 @@ const ColorList = ({ colors, updateColors }) => {
       .delete(`/colors/${color.id}`)
       .then(res => {
         console.log('res from delete', res)
-        updateColors(res.data)
+        setColorToEdit(res.data)
+        // updateColors(res.data)
       })
       .catch(err => {
         console.log('err from delete', err)
