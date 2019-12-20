@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Pack } from "@potion/layout";
-import { Svg, Circle } from "@potion/element";
+import { Pack, Chord } from "@potion/layout";
+import { Svg, Circle, Rect, Ribbon } from "@potion/element";
 
 const Bubbles = ({ colors }) => {
   const [bubbleData, setBubbleData] = useState([]);
+  const [bubbles, setBubbles] = useState(true);
+  const [rect, setRect] = useState(false);
+
+  //toggles display type
+  const rectanglesSetter = () => {
+    setRect(true);
+    setBubbles(false)
+  }
+  
+  const bubblesSetter = () => {
+    setRect(false);
+    setBubbles(true)
+  }
+
   useEffect(() => {
     const generateBubbleData = colors.map((_, i) => ({
       value: Math.floor(Math.random() * (colors.length * 2)) + 1,
@@ -14,7 +28,8 @@ const Bubbles = ({ colors }) => {
 
   return (
     <div className="bubble-wrap">
-      <p>bubbles</p>
+      <button onClick = {bubblesSetter}><p>bubbles</p></button>
+      <button onClick = {rectanglesSetter}><p>rectangles</p></button>
       <Svg width={400} height={400}>
         <Pack
           data={{
@@ -29,16 +44,29 @@ const Bubbles = ({ colors }) => {
           {nodes =>
             nodes
               .map(({ x, y, r, key }, i) => {
-                if (i < colors.length) {
+                if (i < colors.length && bubbles) {
                   return (
-                    <Circle
+                    
+                      <Circle
                       key={key}
                       cx={x}
                       cy={y}
                       r={r}
                       fill={colors[i].code.hex}
                     />
+                 
                   );
+                } else if (i < colors.length && rect){
+                  return (
+                      <Rect 
+                      key = {key}
+                      x = {x}
+                      y = {y}
+                      width = {r}
+                      height = {r}
+                      fill = {colors[i].code.hex}
+                    />
+                  )
                 }
                 return null;
               })
