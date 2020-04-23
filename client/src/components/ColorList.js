@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {axiosWithAuth} from '../utils/axiosWithAuth';
 
 const initialColor = {
@@ -12,17 +12,34 @@ const ColorList = ({ colors, updateColors }) => {
   const [colorToEdit, setColorToEdit] = useState(initialColor);
   const [addColor, setAddColor] = useState(initialColor);
 
+  useEffect(() => {
+    axiosWithAuth()
+      .get('/colors')
+      .then(res => {
+        updateColors(res.data)
+      })
+      .catch(err => {
+        console.log('error in the useEffect', err)
+      })
+  }, [editing, addColor, updateColors])
+
+  const addColorHexHandler = e => {
+    setAddColor({...addColor, code: {hex: e.target.value}})
+  }
+
   const addingHandler = e => {
     e.preventDefault();
     axiosWithAuth()
       .post('/colors', addColor)
       .then(res => {
-        console.log(res)
-        setAddColor(res.data)
+        // console.log(res)
+        updateColors(res.data)
+        // setAddColor(res.data)
       })
       .catch(err => {
         console.log(err)
       })
+      
   }
 
   const editColor = color => {
@@ -35,32 +52,43 @@ const ColorList = ({ colors, updateColors }) => {
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
+    const body = {...colorToEdit}
+    const {id} = colorToEdit
     axiosWithAuth()
-      .put(`/colors/${colorToEdit.id}`, colorToEdit)
-      .then(res => {
-        // console.log('res from saveEdit', res)
-        setColorToEdit(res.data)
-        // setColorToEdit({...initialColor, color: '', hex: ''})
-        // updateColors(res.data)
-        setEditing(false)
-      })
+      .put(`/colors/${id}`, body)
+      //didn't know this, but you don't always need a .then... who knew
       .catch(err => {
         console.log('err from saveEdit', err)
       })
+      colorUpdate();
+      setEditing(false);
   };
 
-  const deleteColor = color => {
+  function colorUpdate() {
+    // setTimeout(() => {
+      axiosWithAuth()
+        .get('/colors')
+        .then(res => 
+          // console.log('res from colorUpdate', res)
+          updateColors(res.data)
+        )
+        .catch(err => {
+          console.log('err in colorUpdate', err)
+        })
+    // }, 100)
+  }
+
+  const deleteColor = (color) => {
     // make a delete request to delete this color
     axiosWithAuth()
       .delete(`/colors/${color.id}`)
-      .then(res => {
-        // console.log('res from delete', res)
-        setColorToEdit(res.data)
-        // updateColors(res.data)
-      })
+      // .then(res => {
+      //   console.log('res from delete', res)
+      // })
       .catch(err => {
         console.log('err from delete', err)
       })
+      colorUpdate();
   };
 
   
@@ -136,12 +164,7 @@ const ColorList = ({ colors, updateColors }) => {
           <label>
             hex code:
             <input
-              onChange={e =>
-                setAddColor({
-                  ...addColor,
-                  code: { hex: e.target.value }
-                })
-              }
+              onChange={addColorHexHandler}
               value={addColor.code.hex}
             />
           </label>
